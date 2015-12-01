@@ -33,7 +33,7 @@ trait ServerOperations {
     val rootService = actorSystem.actorOf(Props(new RoutedHttpService()))
 
     // Create and start the spray-can HttpServer
-    val httpServer = IO(Http)
+    val httpServer = IO(Http)(system)
 
     val interface = "127.0.0.1"   //config.getString("server.bind")
     val webPort = 8080            //config.getInt("server.port")
