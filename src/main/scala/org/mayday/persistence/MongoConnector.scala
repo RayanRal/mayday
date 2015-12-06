@@ -27,5 +27,10 @@ trait UserOperations {
 trait EventOperations {
 
 
+  def createEvent(event: Event) = {
+    MongoConnector.eventsTable.insert(event)
+  }
+
+  def getEvents(radius: Int): List[Event] = ???
 
 }
