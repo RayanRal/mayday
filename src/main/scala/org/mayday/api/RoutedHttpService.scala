@@ -1,10 +1,10 @@
 package org.mayday.api
 
-import akka.actor.{ActorRefFactory, ActorLogging, Actor}
+import akka.actor.Actor
 import akka.event.LoggingReceive
 import spray.can.Http
 import spray.can.Http.Register
-import spray.http.{ChunkedRequestStart, HttpRequest}
+import spray.http.HttpRequest
 import spray.routing.{Route, RequestContext, HttpService}
 
 /**
@@ -20,6 +20,28 @@ class RoutedHttpService extends Actor with HttpService {
     path("test") {
       get {
         complete("OK")
+      }
+    } ~
+    path("user" / "rate" / JavaUUID) { userId =>
+      post {
+        complete(s"User $userId rated")
+      }
+    } ~
+    path("user" / JavaUUID) { userId =>
+      get {
+        complete(s"Info about user $userId")
+      }
+    } ~
+    path("events" / JavaUUID) { eventId =>
+      post {
+        complete(s"Event created $eventId")
+      }
+    } ~
+    path("events") {
+      get {
+        parameters('radius.as[Int] ? 300) { radius =>
+          complete(s"Getting events of $radius")
+        }
       }
     }
   }
