@@ -22,9 +22,9 @@ class RoutedHttpService extends Actor with HttpService {
         complete("OK")
       }
     } ~
-    path("user" / "rate" / JavaUUID) { userId =>
+    path("user" / JavaUUID / "rate" / IntNumber) { (userId, rating) =>
       post {
-        complete(s"User $userId rated")
+        complete(s"User $userId rated with $rating")
       }
     } ~
     path("user" / JavaUUID) { userId =>
@@ -35,6 +35,11 @@ class RoutedHttpService extends Actor with HttpService {
     path("events" / JavaUUID) { eventId =>
       post {
         complete(s"Event created $eventId")
+      }
+    } ~
+    path("events" / JavaUUID / "comment") { eventId =>
+      post{
+        complete(s"Commented on event $eventId")
       }
     } ~
     path("events") {

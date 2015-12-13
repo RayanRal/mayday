@@ -1,7 +1,10 @@
 package org.mayday.persistence
 
+import java.util.UUID
+
 import reactivemongo.api._
 import reactivemongo.api.collections.bson.BSONCollection
+import reactivemongo.bson.BSONDocument
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -20,6 +23,12 @@ object MongoConnector {
 
 trait UserOperations {
 
+  def createUser(user: User) = {
+    MongoConnector.usersTable.insert(user)
+  }
+
+  def rateUser(userId: UUID, rating: Int) = ???
+
 
 
 }
@@ -33,4 +42,9 @@ trait EventOperations {
 
   def getEvents(radius: Int): List[Event] = ???
 
+  def addComment(eventId: UUID, comment: Comment) = {
+    val selector = BSONDocument("eventId" -> eventId.toString)
+    val update = BSONDocument("$push" -> BSONDocument("comments" -> comment))
+    MongoConnector.eventsTable.update(selector, update, upsert = true)
+  }
 }
