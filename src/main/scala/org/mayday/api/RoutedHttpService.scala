@@ -1,6 +1,6 @@
 package org.mayday.api
 
-import akka.actor.Actor
+import akka.actor.{ActorRef, Actor}
 import akka.event.LoggingReceive
 import spray.can.Http
 import spray.can.Http.Register
@@ -10,7 +10,7 @@ import spray.routing.{Route, RequestContext, HttpService}
 /**
   * Created by rayanral on 11/29/15.
   */
-class RoutedHttpService extends Actor with HttpService {
+class RoutedHttpService(dbActor: ActorRef) extends Actor with HttpService with RequestFormats {
 
   import context.dispatcher
 
@@ -34,12 +34,18 @@ class RoutedHttpService extends Actor with HttpService {
     } ~
     path("events" / JavaUUID) { eventId =>
       post {
-        complete(s"Event created $eventId")
+        entity(as[CreateEventRequest]) { event =>
+          dbActor ! event
+          complete(s"Event created $eventId")
+        }
       }
     } ~
     path("events" / JavaUUID / "comment") { eventId =>
       post{
-        complete(s"Commented on event $eventId")
+        entity(as[EventCommentRequest]) { comment =>
+          dbActor ! comment
+          complete(s"Commented on event $eventId")
+        }
       }
     } ~
     path("events") {

@@ -27,9 +27,16 @@ trait UserOperations {
     MongoConnector.usersTable.insert(user)
   }
 
-  def rateUser(userId: UUID, rating: Int) = ???
+  def rateUser(userId: UUID, rate: Rate) = {
+    val selector = BSONDocument("userId" -> userId.toString)
+    val update = BSONDocument("$push" -> BSONDocument("rates" -> rate))
+    MongoConnector.eventsTable.update(selector, update, upsert = true)
+  }
 
-
+  def getUser(userId: UUID) = {
+    val selector = BSONDocument("userId" -> userId.toString)
+    MongoConnector.eventsTable.find(selector)
+  }
 
 }
 

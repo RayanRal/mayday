@@ -4,6 +4,7 @@ import akka.actor.{Props, ActorSystem}
 import akka.io.IO
 import com.typesafe.config.{ConfigResolveOptions, ConfigParseOptions, ConfigFactory, Config}
 import org.mayday.api.RoutedHttpService
+import org.mayday.persistence.DbActor
 import spray.can.Http
 
 import scala.concurrent.duration._
@@ -27,7 +28,8 @@ trait ServerOperations {
   }
 
   class Application(val actorSystem: ActorSystem) {
-    val rootService = actorSystem.actorOf(Props(new RoutedHttpService()))
+    val dbActor = actorSystem.actorOf(Props[DbActor])
+    val rootService = actorSystem.actorOf(Props(new RoutedHttpService(dbActor)))
     def config = actorSystem.settings.config
 
     // Create and start the spray-can HttpServer

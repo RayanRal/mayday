@@ -17,7 +17,7 @@ case class User(userId: UUID, name: String, phone: String, email: String,
 
 case class Rate(userId: UUID, mark: Int)
 
-case class Event(eventId: UUID, createdBy: String, coords: Coordinate, description: String, comments: List[Comment])
+case class Event(eventId: UUID, createdUserId: UUID, coords: Coordinate, description: String, comments: List[Comment])
 
 case class Comment(authorId: UUID, text: String)
 
@@ -87,7 +87,7 @@ object Event {
   implicit object EventReaderWriter extends BSONDocumentReader[Event] with BSONDocumentWriter[Event] {
     override def read(doc: BSONDocument): Event = {
       val eventId = UUID.fromString(doc.getAs[String]("eventId").get)
-      val createdBy = doc.getAs[String]("createdBy").get
+      val createdBy = UUID.fromString(doc.getAs[String]("createdUserId").get)
       val description = doc.getAs[String]("description").get
       val comments = doc.getAs[List[Comment]]("comments").get
       val coordsBson = doc.getAs[BSONDocument]("coords").get
@@ -102,7 +102,7 @@ object Event {
       val coords = BSONDocument("xCoord" -> event.coords.x, "yCoord" -> event.coords.y)
       BSONDocument(
         "eventId" -> event.eventId.toString,
-        "createdBy" -> event.createdBy,
+        "createdUserId" -> event.createdUserId.toString,
         "coords" -> coords,
         "description" -> event.description,
         "comments" -> event.comments

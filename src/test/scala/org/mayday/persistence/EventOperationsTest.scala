@@ -7,6 +7,6 @@ import java.util.UUID
   */
 object EventOperationsTest extends App with EventOperations {
 
-  createEvent(Event(UUID.randomUUID(), "someUser", Coordinate(5, 2), "description", List.empty))
+  createEvent(Event(UUID.randomUUID(), UUID.randomUUID(), Coordinate(5, 2), "description", List.empty))
 
 }
