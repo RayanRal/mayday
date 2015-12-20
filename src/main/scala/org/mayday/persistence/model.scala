@@ -9,18 +9,60 @@ import reactivemongo.bson.{BSONArray, BSONDocument, BSONDocumentWriter, BSONDocu
   */
 case class Coordinate(x: Double, y: Double)
 
+case class UserComment(authorId: UUID, authorName: String, text: String)
+
+case class EventComment(authorId: UUID, authorName: String, text: String)
 
 case class User(userId: UUID, name: String, phone: String, email: String,
                 fbLink: String, vkLink: String, twitterLink: String,
                 alertRadius: Double, alertOn: Boolean, rates: List[Rate],
-                comments: List[String], lastCoords: Coordinate)
+                comments: List[UserComment], lastCoords: Coordinate)
 
 case class Rate(userId: UUID, mark: Int)
 
-case class Event(eventId: UUID, createdUserId: UUID, coords: Coordinate, description: String, comments: List[Comment])
+case class Event(eventId: UUID, createdUserId: UUID, coords: Coordinate, description: String, comments: List[EventComment])
 
-case class Comment(authorId: UUID, authorName: String, text: String)
 
+object EventComment {
+  implicit object CommentReaderWriter extends BSONDocumentReader[EventComment] with BSONDocumentWriter[EventComment] {
+    override def read(doc: BSONDocument): EventComment = {
+      EventComment(
+        UUID.fromString(doc.getAs[String]("authorId").get),
+        doc.getAs[String]("authorName").get,
+        doc.getAs[String]("text").get
+      )
+    }
+
+    override def write(comment: EventComment): BSONDocument = {
+      BSONDocument(
+        "authorId" -> comment.authorId.toString,
+        "authorName" -> comment.authorName.toString,
+        "text" -> comment.text
+      )
+    }
+  }
+}
+
+
+object UserComment {
+  implicit object UserCommentWriter extends BSONDocumentReader[UserComment] with BSONDocumentWriter[UserComment] {
+    override def read(doc: BSONDocument): UserComment = {
+      UserComment(
+        UUID.fromString(doc.getAs[String]("authorId").get),
+        doc.getAs[String]("authorName").get,
+        doc.getAs[String]("text").get
+      )
+    }
+
+    override def write(comment: UserComment): BSONDocument = {
+      BSONDocument(
+        "authorId" -> comment.authorId.toString,
+        "authorName" -> comment.authorName.toString,
+        "text" -> comment.text
+      )
+    }
+  }
+}
 
 object Rate {
   implicit object RateReaderWriter extends BSONDocumentReader[Rate] with BSONDocumentWriter[Rate] {
@@ -53,7 +95,7 @@ object User {
       val alertRadius = doc.getAs[Double]("alertRadius").get
       val alertOn = doc.getAs[Boolean]("alertOn").get
       val rates = doc.getAs[List[Rate]]("rates").get
-      val comments = doc.getAs[List[String]]("comments").get
+      val comments = doc.getAs[List[UserComment]]("comments").get
       val lastCoordsBson = doc.getAs[BSONDocument]("lastCoords").get
       val xCoord = lastCoordsBson.getAs[Double]("xCoord").get
       val yCoord = lastCoordsBson.getAs[Double]("yCoord").get
@@ -89,7 +131,7 @@ object Event {
       val eventId = UUID.fromString(doc.getAs[String]("eventId").get)
       val createdBy = UUID.fromString(doc.getAs[String]("createdUserId").get)
       val description = doc.getAs[String]("description").get
-      val comments = doc.getAs[List[Comment]]("comments").get
+      val comments = doc.getAs[List[EventComment]]("comments").get
       val coordsBson = doc.getAs[BSONArray]("coords.coordinates").get
       val xCoord = coordsBson.getAs[Double](0).get
       val yCoord = coordsBson.getAs[Double](1).get
@@ -106,26 +148,6 @@ object Event {
         "coords" -> coords,
         "description" -> event.description,
         "comments" -> event.comments
-      )
-    }
-  }
-}
-
-object Comment {
-  implicit object CommentReaderWriter extends BSONDocumentReader[Comment] with BSONDocumentWriter[Comment] {
-    override def read(doc: BSONDocument): Comment = {
-      Comment(
-        UUID.fromString(doc.getAs[String]("authorId").get),
-        doc.getAs[String]("authorName").get,
-        doc.getAs[String]("text").get
-      )
-    }
-
-    override def write(comment: Comment): BSONDocument = {
-      BSONDocument(
-        "authorId" -> comment.authorId.toString,
-        "authorName" -> comment.authorName.toString,
-        "text" -> comment.text
       )
     }
   }

@@ -56,7 +56,7 @@ class RoutedHttpService(dbActor: ActorRef) extends Actor
     } ~
     path("events" / JavaUUID / "comment") { eventId =>
       post{
-        entity(as[EventCommentRequest]) { comment =>
+        entity(as[CommentEventRequest]) { comment =>
           dbActor ! comment
           complete(s"Commented on event $eventId")
         }

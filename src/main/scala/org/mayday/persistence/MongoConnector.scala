@@ -2,6 +2,7 @@ package org.mayday.persistence
 
 import java.util.UUID
 
+import org.mayday.api.UserResponse
 import reactivemongo.api._
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.bson.{BSONArray, BSONDocument}
@@ -36,7 +37,14 @@ trait UserOperations {
 
   def getUser(userId: UUID) = {
     val selector = BSONDocument("userId" -> userId.toString)
-    MongoConnector.usersTable.find(selector).cursor[User](ReadPreference.primary).headOption
+    val userOption = MongoConnector.usersTable.find(selector).cursor[User](ReadPreference.primary).headOption
+    userOption map {
+      case None =>
+        ErrorMessage("User not found")
+      case Some(User(_, name, phone, email, fbLink, vkLink, twitterLink, _, _, rates, comments, lastCoords)) =>
+        val rating = rates.map(_.mark).sum / rates.length
+        UserResponse(name, phone, email, fbLink, vkLink, twitterLink, rating, comments, lastCoords)
+    }
   }
 
 }
@@ -61,7 +69,7 @@ trait EventOperations {
     MongoConnector.eventsTable.find(selector).cursor[Event].collect[List]()
   }
 
-  def addComment(eventId: UUID, comment: Comment) = {
+  def addComment(eventId: UUID, comment: EventComment) = {
     val selector = BSONDocument("eventId" -> eventId.toString)
     val update = BSONDocument("$push" -> BSONDocument("comments" -> comment))
     MongoConnector.eventsTable.update(selector, update, upsert = true)
