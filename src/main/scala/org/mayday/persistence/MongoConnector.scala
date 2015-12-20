@@ -4,8 +4,9 @@ import java.util.UUID
 
 import reactivemongo.api._
 import reactivemongo.api.collections.bson.BSONCollection
-import reactivemongo.bson.BSONDocument
+import reactivemongo.bson.{BSONArray, BSONDocument}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
   * Created by rayanral on 12/6/15.
@@ -30,12 +31,12 @@ trait UserOperations {
   def rateUser(userId: UUID, rate: Rate) = {
     val selector = BSONDocument("userId" -> userId.toString)
     val update = BSONDocument("$push" -> BSONDocument("rates" -> rate))
-    MongoConnector.eventsTable.update(selector, update, upsert = true)
+    MongoConnector.usersTable.update(selector, update, upsert = true)
   }
 
   def getUser(userId: UUID) = {
     val selector = BSONDocument("userId" -> userId.toString)
-    MongoConnector.eventsTable.find(selector)
+    MongoConnector.usersTable.find(selector).cursor[User](ReadPreference.primary).headOption
   }
 
 }
@@ -47,7 +48,18 @@ trait EventOperations {
     MongoConnector.eventsTable.insert(event)
   }
 
-  def getEvents(radius: Int): List[Event] = ???
+  def getEvents(coords: Coordinate, radius: Int) = {
+    val selector =
+      BSONDocument("coords" ->
+        BSONDocument("$near" ->
+          BSONDocument(
+            "$geometry" -> BSONDocument("type" -> "Point", "coordinates" -> BSONArray(coords.x, coords.y)),
+            "$maxDistance" -> radius
+          )
+        )
+      )
+    MongoConnector.eventsTable.find(selector).cursor[Event].collect[List]()
+  }
 
   def addComment(eventId: UUID, comment: Comment) = {
     val selector = BSONDocument("eventId" -> eventId.toString)

@@ -21,7 +21,7 @@ trait RequestFormats extends DefaultJsonProtocol with SprayJsonSupport {
   }
 
   implicit val CreateEventRequestFormat = jsonFormat5(CreateEventRequest)
-  implicit val EventCommentRequestFormat = jsonFormat3(EventCommentRequest)
+  implicit val EventCommentRequestFormat = jsonFormat4(EventCommentRequest)
 
 }
 
@@ -30,4 +30,4 @@ object RequestFormats extends RequestFormats
 
 case class CreateEventRequest(eventId: UUID, createdUserId: UUID, xCoord: Double, yCoord: Double, description: String)
 
-case class EventCommentRequest(eventId: UUID, commenterId: UUID, text: String)
+case class EventCommentRequest(eventId: UUID, commenterId: UUID, commenterName: String, text: String)

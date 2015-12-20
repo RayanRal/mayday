@@ -2,7 +2,7 @@ package org.mayday.persistence
 
 import java.util.UUID
 
-import reactivemongo.bson.{BSONDocument, BSONDocumentWriter, BSONDocumentReader}
+import reactivemongo.bson.{BSONArray, BSONDocument, BSONDocumentWriter, BSONDocumentReader}
 
 /**
   * Created by rayanral on 12/2/15.
@@ -19,7 +19,7 @@ case class Rate(userId: UUID, mark: Int)
 
 case class Event(eventId: UUID, createdUserId: UUID, coords: Coordinate, description: String, comments: List[Comment])
 
-case class Comment(authorId: UUID, text: String)
+case class Comment(authorId: UUID, authorName: String, text: String)
 
 
 object Rate {
@@ -90,16 +90,16 @@ object Event {
       val createdBy = UUID.fromString(doc.getAs[String]("createdUserId").get)
       val description = doc.getAs[String]("description").get
       val comments = doc.getAs[List[Comment]]("comments").get
-      val coordsBson = doc.getAs[BSONDocument]("coords").get
-      val xCoord = coordsBson.getAs[Double]("xCoord").get
-      val yCoord = coordsBson.getAs[Double]("yCoord").get
+      val coordsBson = doc.getAs[BSONArray]("coords.coordinates").get
+      val xCoord = coordsBson.getAs[Double](0).get
+      val yCoord = coordsBson.getAs[Double](1).get
       val coords = Coordinate(xCoord, yCoord)
 
       Event(eventId, createdBy, coords, description, comments)
     }
 
     override def write(event: Event): BSONDocument = {
-      val coords = BSONDocument("xCoord" -> event.coords.x, "yCoord" -> event.coords.y)
+      val coords = BSONDocument("type" -> "Point", "coordinates" -> BSONArray(event.coords.x, event.coords.y))
       BSONDocument(
         "eventId" -> event.eventId.toString,
         "createdUserId" -> event.createdUserId.toString,
@@ -116,6 +116,7 @@ object Comment {
     override def read(doc: BSONDocument): Comment = {
       Comment(
         UUID.fromString(doc.getAs[String]("authorId").get),
+        doc.getAs[String]("authorName").get,
         doc.getAs[String]("text").get
       )
     }
@@ -123,6 +124,7 @@ object Comment {
     override def write(comment: Comment): BSONDocument = {
       BSONDocument(
         "authorId" -> comment.authorId.toString,
+        "authorName" -> comment.authorName.toString,
         "text" -> comment.text
       )
     }
