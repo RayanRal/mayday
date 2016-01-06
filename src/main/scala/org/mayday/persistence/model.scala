@@ -14,7 +14,7 @@ case class UserComment(authorId: UUID, authorName: String, text: String)
 case class EventComment(authorId: UUID, authorName: String, text: String)
 
 case class User(userId: UUID, name: String, phone: String, email: String,
-                fbLink: String, vkLink: String, twitterLink: String,
+                fbLink: Option[String], vkLink: Option[String], twitterLink: Option[String],
                 alertRadius: Double, alertOn: Boolean, rates: List[Rate],
                 comments: List[UserComment], lastCoords: Coordinate)
 
@@ -101,7 +101,7 @@ object User {
       val yCoord = lastCoordsBson.getAs[Double]("yCoord").get
       val lastCoords = Coordinate(xCoord, yCoord)
 
-      User(userId, name, phone, email, fbLink, vkLink, twitterLink, alertRadius, alertOn, rates, comments, lastCoords)
+      User(userId, name, phone, email, Some(fbLink), Some(vkLink), Some(twitterLink), alertRadius, alertOn, rates, comments, lastCoords)
     }
 
     override def write(user: User): BSONDocument = {

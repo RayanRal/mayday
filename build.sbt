@@ -30,6 +30,8 @@ libraryDependencies ++= Seq(
 
   "io.spray" %% "spray-json" % "1.2.6",
 
-  "org.reactivemongo" %% "reactivemongo" % "0.11.7"
+  "org.reactivemongo" %% "reactivemongo" % "0.11.7",
+
+  "org.specs2" %% "specs2-core" % "3.7" % "test"
 
 )

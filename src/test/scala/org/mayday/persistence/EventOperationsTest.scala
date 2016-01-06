@@ -17,3 +17,10 @@ object EventOperationsTest extends App with EventOperations {
   println(Await.result[List[Event]](r, duration))
 
 }
+
+
+object UserOperationTest extends App with UserOperations {
+
+  createUser(User(UUID.randomUUID(), "name", "8063 400 00 77", "some@email.com", None, None, None, 0, true, List.empty, List.empty, Coordinate(0, 0)))
+
+}

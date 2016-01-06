@@ -21,7 +21,7 @@ trait ServerOperations {
     }
 
     val serverSettings: Config = ConfigFactory.load(configResource,
-      ConfigParseOptions.defaults().setAllowMissing(false),
+      ConfigParseOptions.defaults().setAllowMissing(true),
       ConfigResolveOptions.defaults())
 
     ActorSystem("Mayday", serverSettings)
@@ -35,8 +35,8 @@ trait ServerOperations {
     // Create and start the spray-can HttpServer
     val httpServer = IO(Http)(system)
 
-    val address = config.getString("server.address")
-    val port    = config.getInt("server.port")
+    val address = "localhost"//config.getString("server.address")
+    val port    = 8080//config.getInt("server.port")
     httpServer.tell(Http.Bind(rootService, address, port), rootService)
   }
 

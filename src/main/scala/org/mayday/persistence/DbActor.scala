@@ -15,6 +15,9 @@ class DbActor extends Actor with ActorLogging
   implicit val ec = context.dispatcher
 
   override def receive: Receive = {
+    case CreateUser(userId, name, phone, email) =>
+      val user = User(userId, name, phone, email, None, None, None, 100, true, List.empty, List.empty, Coordinate(0, 0))
+      createUser(user)
     case CreateEventRequest(eventId, userId, xCoord, yCoord, description) =>
       val event = Event(eventId, userId, Coordinate(xCoord, yCoord), description, List.empty)
       createEvent(event)

@@ -22,5 +22,5 @@ trait ResponseFormats extends DefaultJsonProtocol with SprayJsonSupport with Com
 object ResponseFormats extends ResponseFormats
 
 case class UserResponse(name: String, phone: String, email: String,
-                        fbLink: String, vkLink: String, twitterLink: String,
+                        fbLink: Option[String], vkLink: Option[String], twitterLink: Option[String],
                         rate: Double, comments: List[UserComment], lastCoords: Coordinate)

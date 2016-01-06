@@ -7,6 +7,8 @@ import java.util.UUID
   */
 package object persistence {
 
+  case class CreateUser(userId: UUID, name: String, phone: String, email: String)
+
   case class GetUser(userId: UUID)
 
   case class RateUser(userId: UUID, rating: Int)

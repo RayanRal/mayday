@@ -29,6 +29,14 @@ class RoutedHttpService(dbActor: ActorRef) extends Actor
         complete("OK")
       }
     } ~
+    path("user" / JavaUUID) { userId =>
+      post {
+        entity(as[CreateUserRequest]) { cu =>
+          dbActor ! CreateUser(userId, cu.name, cu.phone, cu.email)
+          complete(s"User $userId created succesfully")
+        }
+      }
+    } ~
     path("user" / JavaUUID / "rate" / IntNumber) { (userId, rating) =>
       post {
         dbActor ! RateUser(userId, rating)
